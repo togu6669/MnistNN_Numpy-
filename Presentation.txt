@@ -1,0 +1,14 @@
+
+good explanation of Gradient Descent
+
+https://www.youtube.com/watch?v=5u0jaA3qAGk
+
+
+
+The main problem is:
+how to minimize a loss function and find the global minimum? 
+
+The loss function: min square error 
+
+Sum (1/2 * (Y - Output)^2)
+
