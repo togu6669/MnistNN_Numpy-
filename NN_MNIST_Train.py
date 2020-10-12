@@ -41,14 +41,12 @@ nimages = np.asfarray (images) * fac + 0.01 # normalize grayscales to 0.01 - 1 h
 # NUMPY 
 # initialize network layer: No of Neurons, Previous Layer, Bias, Learning Rate, Activation Function
 InputLayer = NeuronLayers2.NeuronFCLayer (image_size*image_size, None, 0, 0.5, ne.PassThrough)
-HiddenLayer1 = NeuronLayers2.NeuronFCLayer (128, InputLayer, 0.35, 0.5, ne.ReLU) # ne.ReLU
+HiddenLayer1 = NeuronLayers2.NeuronFCLayer (128, InputLayer, 0.35, 0.5, ne.ReLU) # ne.Sigmoid
 OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, 0.5, ne.SoftMax, lf.CrossEntropy) # ne.SoftMax 
 # HiddenLayer1 = NeuronLayers2.NeuronFCLayer (500, InputLayer, 0.35, 0.5, ne.Sigmoid) 
 # HiddenLayer2 = NeuronLayers2.NeuronFCLayer (400, HiddenLayer1, 0.35, 0.5, ne.Sigmoid) 
 # OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, 0.5, ne.Sigmoid) 
 
-
-# TORCH 
 
 start = timer()
 
