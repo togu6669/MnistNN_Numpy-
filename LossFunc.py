@@ -1,16 +1,43 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import abc
 
-def QuadraticSumError (Output, Label):
-    return np.sum (np.power(Label-Output, 2))
+class LossFunc (metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def val(self, y):
+        pass
 
-def CrossEntropy (Output, Label):
-    # a = - np.log (Output)
-    # a = Label * a
-    # a = np.sum (a)
-    
-    return - np.sum ((Label*np.log (Output)))
+    # @abc.abstractmethod
+    # def val_torch(self, y):
+    #     pass
 
+    @abc.abstractmethod
+    def d_val (self, y):   
+        pass
+
+class CrossEntropy(LossFunc):
+
+    def val (self, y, l):
+        # a = - np.log (Output)
+        # a = Label * a
+        # a = np.sum (a)
+        return - np.mean ((l*np.log (y)))
+
+    def d_val (self, y, l):
+        z = self.val (y, l) 
+        # maxA = np.random.choice(np.where(self.Qt_a == q_best)[0]) probably useless 
+        return - 1 / z # check this
+
+
+# def QuadraticSumError (Output, Label):
+#     return np.sum (np.power(Label-Output, 2))
+
+
+
+
+
+
+# -------------------------------------------------------- Test routines -----------------------------------------------------------------------------
 
 
 # CE inspection on how it behaves if the right answer probability changes from 0,001% to 99,9%

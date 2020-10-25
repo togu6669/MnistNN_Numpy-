@@ -10,10 +10,13 @@
 # MNIST resources
 # https://www.python-course.eu/neural_network_mnist.php
 
+# discussion on the bias node and why we do not need it in MNIST
+# http://makeyourownneuralnetwork.blogspot.com/2016/06/bias-nodes-in-neural-networks.html
+
 import numpy as np
 import NeuronLayers2
 import LossFunc as lf
-import ActFunc as ne
+import ActFunc as af
 import MNISTReader as mr
 import pickle as pk
 from timeit import default_timer as timer
@@ -38,9 +41,13 @@ nimages = np.asfarray (images) * fac + 0.01 # normalize grayscales to 0.01 - 1 h
 
 # NUMPY 
 # initialize network layer: No of Neurons, Previous Layer, Bias, Learning Rate, Activation Function
-InputLayer = NeuronLayers2.NeuronFCLayer (image_size*image_size, None, 0, 0.5, ne.PassThrough)
-HiddenLayer1 = NeuronLayers2.NeuronFCLayer (128, InputLayer, 0.35, 0.5, ne.Sigmoid) # ne.Sigmoid
-OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, 0.5, ne.Sigmoid, lf.CrossEntropy) # ne.SoftMax 
+InputLayer = NeuronLayers2.NeuronFCLayer (image_size*image_size, None, 0, 0.5, af.PassThrough())
+HiddenLayer1 = NeuronLayers2.NeuronFCLayer (128, InputLayer, 0.35, 0.5, af.ReLU()) # af.Sigmoid
+OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, 0.5, af.SoftMax(), lf.CrossEntropy()) # af.SoftMax 
+
+InputLayer.setNextLayer (HiddenLayer1)
+HiddenLayer1.setNextLayer (OutputLayer)
+OutputLayer.setNextLayer(None)
 
 start = timer()
 
@@ -67,7 +74,7 @@ while epoch < No_of_epoch:
         HiddenLayer1.forward (None)
         # print ('----------------------- Output Layer -------------------')
         OutputLayer.forward (None)
-        OutputLayer.LossFunc (OutputLayer.Output(), labels [img_count])
+        OutputLayer.lf.val (OutputLayer.Output(), labels [img_count])
 
         # backprop step 
         # print ('----------------------------------------------------------')
@@ -77,22 +84,22 @@ while epoch < No_of_epoch:
         # if img_count < label_count:    # size of labels must be the same as size of images
         #     label = labels [img_count]
         
-        OutputLayer.backwardSigmoid (None, None, labels [img_count]) # first layer
-        HiddenLayer1.backwardSigmoid (OutputLayer.layerweights, OutputLayer.layerdelta, None)
+        OutputLayer.backward (labels [img_count]) # first layer
+        HiddenLayer1.backward (None)
 
         OutputLayer.update()
         HiddenLayer1.update()
 
         if np.mod (img_count, 1000) == 0:
-            print ("learning image #: ", img_count, " Label:", np.argmax (labels [img_count]), " Output:", np.argmax (OutputLayer.layeroutputs))
-            # plt.scatter (img_count, np.mean (OutputLayer.layeroutputs), Color = 'blue')    
-            # plt.scatter (img_count, np.mean (HiddenLayer1.layeroutputs), Color = 'red')   
+            print ("learning image #: ", img_count, " Label:", np.argmax (labels [img_count]), " Output:", np.argmax (OutputLayer.y))
+            # plt.scatter (img_count, np.mean (OutputLayer.y), Color = 'blue')    
+            # plt.scatter (img_count, np.mean (HiddenLayer1.y), Color = 'red')   
             # plt.pause (0.05)
 
         img_count = img_count + 1
 
         img_label = np.argmax (labels [img_count-1])
-        net_output = np.argmax (OutputLayer.layeroutputs)
+        net_output = np.argmax (OutputLayer.y)
 
         if (img_label == net_output):
             success_count = success_count + 1
@@ -134,7 +141,7 @@ def test(t_images, t_labels):
         OutputLayer.forward(None)
         
         test_img_label = np.argmax (t_labels [img_count])
-        net_output = np.argmax (OutputLayer.layeroutputs)
+        net_output = np.argmax (OutputLayer.y)
 
         if (test_img_label == net_output):
             success_count = success_count + 1
