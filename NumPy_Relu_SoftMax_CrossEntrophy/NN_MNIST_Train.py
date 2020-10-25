@@ -16,8 +16,10 @@ import LossFunc as lf
 import ActFunc as ne
 import MNISTReader as mr
 import pickle as pk
+from NN_Utils import SaveTheNet
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
+
 
 # Read training images
 #mr.ReadMNISTImages ('data/t10k-images-idx3-ubyte.gz')
@@ -40,7 +42,11 @@ nimages = np.asfarray (images) * fac + 0.01 # normalize grayscales to 0.01 - 1 h
 # initialize network layer: No of Neurons, Previous Layer, Bias, Learning Rate, Activation Function
 InputLayer = NeuronLayers2.NeuronFCLayer (image_size*image_size, None, 0, 0.5, ne.PassThrough)
 HiddenLayer1 = NeuronLayers2.NeuronFCLayer (128, InputLayer, 0.35, 0.5, ne.Sigmoid) # ne.Sigmoid
-OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, 0.5, ne.Sigmoid, lf.CrossEntropy) # ne.SoftMax 
+OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, 0.5, ne.Sigmoid) #  lf.CrossEntropy) # ne.SoftMax 
+# HiddenLayer1 = NeuronLayers2.NeuronFCLayer (500, InputLayer, 0.35, 0.5, ne.Sigmoid) 
+# HiddenLayer2 = NeuronLayers2.NeuronFCLayer (400, HiddenLayer1, 0.35, 0.5, ne.Sigmoid) 
+# OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, 0.5, ne.Sigmoid) 
+
 
 start = timer()
 
@@ -138,10 +144,27 @@ def test(t_images, t_labels):
 
         if (test_img_label == net_output):
             success_count = success_count + 1
-    
+        
+        # line = "Img Number: " + str (img_count) + " | Test value: " + str(test_img_label) + " | Network Response: " + str(net_output) + "\n"
+        # filename = "MNIST-test-" + str(epoch) + ".txt"
+        # file2write = open (filename,'w')
+        # file2write.write (line)
+        # file2write.close()
+        
+        # # save the entire network for the given test image
+        # SaveTheNet (HiddenLayer1, HiddenLayer2, OutputLayer, epoch, img_count)
+        # SaveTheNet1Hidden (HiddenLayer1, OutputLayer, epoch, img_count)
+
         img_count = img_count + 1
 
-    
+    # print ("Test saved")
+
+    # file2write = open ("MNIST-network-epoch"+str(epoch)+".mninet",'wb')
+    # pk.dump(InputLayer, file2write)
+    # pk.dump(HiddenLayer1, file2write)
+    # pk.dump(OutputLayer, file2write)
+    # file2write.close()
+
     return success_count / test_img_count
 
 print (" Accuracy : ", test (test_images, test_labels))
