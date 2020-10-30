@@ -25,8 +25,9 @@ class CrossEntropy(LossFunc):
 
     def d_val (self, y, l):
         z = self.val (y, l) 
-        # maxA = np.random.choice(np.where(self.Qt_a == q_best)[0]) probably useless 
-        return - 1 / z # check this
+        if z != 0:
+            z = -1 / z
+        return z 
 
 
 # def QuadraticSumError (Output, Label):
