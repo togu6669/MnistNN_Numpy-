@@ -100,7 +100,7 @@ class NeuronFCLayer:        # fully connected
             # torch_w_grad, _ = getTorchGrad()
             self.dl = self.lf.d_val (self.y, Y)
         else: 
-            # sum of (transponed next laser weights * next layer deltas)
+            # sum of (transponed next laser weights * next layer deltas) Hadamard product
             self.dl = np.dot (self.nl.w.T, self.nl.dl*self.nl.dy) 
             
         self.dy = self.af.d_val(self.y)
