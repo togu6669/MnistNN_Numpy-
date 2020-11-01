@@ -3,6 +3,9 @@
 # https://towardsdatascience.com/handwritten-digit-mnist-pytorch-977b5338e627
 
 # fast MNIST https://gist.github.com/y0ast/f69966e308e549f013a92dc66debeeb4
+# installing pytorch
+
+# https://pytorch.org/?utm_source=Google&utm_medium=PaidSearch&utm_campaign=%2A%2ALP+-+TM+-+General+-+HV+-+PL&utm_adgroup=Install+PyTorch&utm_keyword=install%20pytorch&utm_offering=AI&utm_Product=PyTorch&gclid=Cj0KCQjwufn8BRCwARIsAKzP6967zX6vq65uHq9CHWi8aPyKotrZ3CSxiNOyKPtI4FZo2CywWzQAuX0aAoorEALw_wcB
 
 import os
 import torch
