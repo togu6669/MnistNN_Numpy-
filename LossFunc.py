@@ -21,12 +21,13 @@ class CrossEntropy(LossFunc):
         # a = - np.log (Output)
         # a = Label * a
         # a = np.sum (a)
-        return - np.mean ((l*np.log (y)))
+        return - np.sum ((l*np.log (y)), 0)
 
     def d_val (self, y, l):
-        z = self.val (y, l) 
-        if z != 0:
-            z = -1 / z
+        z = np.zeros_like(y)
+        a = np. where(l == 0.99) # awful hack, we know that the value under the correct label index = 0.99
+        if len(a) > 0 and len(a[0]) > 0:
+            z[a[0]] = -1 / y [a[0]]
         return z 
 
 

@@ -1,3 +1,6 @@
+# very simply put "in out" explanation 
+# https://medium.com/@14prakash/back-propagation-is-very-simple-who-made-it-complicated-97b794c97e5c
+
 import numpy as np
 import math as mt
 import torch
@@ -71,6 +74,8 @@ class SoftPlus(ActFunc): # this has been not checked
 # ReLU vs sigmoid in mnist example
 # https://datascience.stackexchange.com/questions/18667/relu-vs-sigmoid-in-mnist-example - cliping softmax
 
+# Softmax derivative - jacobian discussion
+# https://stackoverflow.com/questions/36279904/softmax-derivative-in-numpy-approaches-0-implementation
 class SoftMax(ActFunc):
 
     def val (self, y):
@@ -89,6 +94,8 @@ class SoftMax(ActFunc):
         # return b
 
     # taken from https://towardsdatascience.com/dismantling-neural-networks-to-understand-the-inner-workings-with-math-and-pytorch-beac8760b595
+    # while the sigmoid function is the function of one neuron, the softmax is a multivariate function of many neurons 
+    #
     def d_val (self, y):
         sm = self.val(y).squeeze()
         sm_size = sm.shape[0]

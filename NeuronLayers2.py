@@ -32,15 +32,17 @@ class NeuronFCLayer:        # fully connected
             self.w = np.array (w)
         else:
             self.w = np.zeros (self.nn) # input layer
+        self.sum_xwT_b = None # layer x * wT + b
         self.y = np.zeros (self.nn) # output shape
+
 
     def Output(self):
         # x * wT + B is linear 
         x = self.x.reshape (self.x.size, -1)
-        xwT = np.multiply (x, np.transpose (np.atleast_2d (self.w)))
-        sum_xwT_b = np.sum (xwT, 0) + self.b
+        z = x * np.transpose (np.atleast_2d (self.w))
+        self.z_b = np.sum (z, 0) + self.b 
         # activation func is not linear 
-        y = self.af.val (sum_xwT_b)
+        y = self.af.val (self.z_b)
         return y
 
     def forward(self, inputs):  # propagte signal from 1st to n-layer
@@ -100,15 +102,26 @@ class NeuronFCLayer:        # fully connected
             # torch_w_grad, _ = getTorchGrad()
             self.dl = self.lf.d_val (self.y, Y)
         else: 
-            # sum of (transponed next laser weights * next layer deltas) Hadamard product
-            self.dl = np.dot (self.nl.w.T, self.nl.dl*self.nl.dy) 
+            # sum of (transponed next laser weights * next layer deltas) 
+            self.dl = np.dot (self.nl.w.T, self.nl.dl*self.nl.dy).T
             
-        self.dy = self.af.d_val(self.y)
+        self.dy = self.af.d_val(self.z_b) 
 
-        #derivative of loss function * derivative of activation funtion  * transponed (reshaped) input derivative
-        # input derivative dx / dw = x aka self.x
-       
-        self.dw = self.dl * self.dy * self.x.reshape (self.x.size, -1)
+        #derivative of loss function * derivative of activation funtion  * reshaped input derivative from (128,) to (128, 1)
+        # input derivative dx / dw = x aka Jacobian 
+        # https://aimatters.wordpress.com/2020/06/14/derivative-of-softmax-layer/
+        # https://eli.thegreenplace.net/2016/the-softmax-function-and-its-derivative/
+
+        dz = np.zeros ((self.z_b.size, self.w.size))
+
+        # for k in range(0, self.z_b.shape[0]):
+        #     for i in range(0, self.w.shape[1]):
+        #         for j in range(0, self.w.shape[0]):
+        #             if i == k:
+        #                 dx[k][(i*self.w.shape[0]) + j] = self.x[j]
+
+        dSdW = np.dot (self.dy, dz) # .reshape (self.w.shape)
+        self.dw = np.dot (self.dl, dSdW)
         
         # difference between torch and math only for the last layer
         # if nextlayerdelta is None:
@@ -122,3 +135,4 @@ class NeuronFCLayer:        # fully connected
 
     def update (self):
         self.w = self.w - self.lr * self.dw.T
+        
