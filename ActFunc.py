@@ -93,27 +93,32 @@ class SoftMax(ActFunc):
         # b = torch.clamp(b, 0.01, 0.99)
         # return b
 
+    
+    # taken from https://aerinykim.medium.com/how-to-implement-the-softmax-derivative-independently-from-any-loss-function-ae6d44363a9d
+    def d_val (self, y):
+        s = self.val(y).reshape(-1,1)
+        s1 = np.diagflat(s) - np.dot(s, s.T)
+        return s1
+        
     # taken from https://towardsdatascience.com/dismantling-neural-networks-to-understand-the-inner-workings-with-math-and-pytorch-beac8760b595
     # while the sigmoid function is the function of one neuron, the softmax is a multivariate function of many neurons 
-    #
-    def d_val (self, y):
-        sm = self.val(y).squeeze()
-        sm_size = sm.shape[0]
-        sm_ps = []
-        for i, sm_i in enumerate(sm):
-            for j, sm_j in enumerate(sm):
-            # First case: i and j are equal:
-                if(i==j):
-                    # Differentiating the softmax of a neuron w.r.t to itself
-                    sm_p = sm_i * (1 - sm_i)
-                    sm_ps.append(sm_p)
-            # Second case: i and j are not equal:
-                else:
-                    # Differentiating the softmax of a neuron w.r.t to another neuron
-                    sm_p = -sm_i * sm_j
-                    sm_ps.append(sm_p)
-        sm_ps = np.array(sm_ps).reshape (sm_size, sm_size)
-        return sm_ps       
+        # sm = self.val(y).squeeze()
+        # sm_size = sm.shape[0]
+        # sm_ps = []
+        # for i, sm_i in enumerate(sm):
+        #     for j, sm_j in enumerate(sm):
+        #     # First case: i and j are equal:
+        #         if(i==j):
+        #             # Differentiating the softmax of a neuron w.r.t to itself
+        #             sm_p = sm_i * (1 - sm_i)
+        #             sm_ps.append(sm_p)
+        #     # Second case: i and j are not equal:
+        #         else:
+        #             # Differentiating the softmax of a neuron w.r.t to another neuron
+        #             sm_p = -sm_i * sm_j
+        #             sm_ps.append(sm_p)
+        # sm_ps = np.array(sm_ps).reshape (sm_size, sm_size)
+        # return sm_ps       
 
 class PassThrough(ActFunc):
 

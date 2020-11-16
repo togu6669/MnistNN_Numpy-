@@ -1,14 +1,167 @@
-
 good explanation of Gradient Descent
 
 https://www.youtube.com/watch?v=5u0jaA3qAGk
 
+TO DO:
+wyjasnic czy W * x czy x *W
 
 
-The main problem is:
+0. brain 
+
+1. what is an NN 
+schemat 
+
+2. Why they work : 
+StatQuest 
+
+3. How they learn 
+https://cs231n.github.io/optimization-2/#intuitive
+
+Intuitive understanding of backpropagation
+Notice that backpropagation is a beautifully local process. Every gate in a circuit diagram gets some inputs and can right away compute two things: 1. its output value and 2. the local gradient of its output with respect to its inputs. Notice that the gates can do this completely independently without being aware of any of the details of the full circuit that they are embedded in. However, once the forward pass is over, during backpropagation the gate will eventually learn about the gradient of its output value on the final output of the entire circuit. Chain rule says that the gate should take that gradient and multiply it into every gradient it normally computes for all of its inputs.
+This extra multiplication (for each input) due to the chain rule can turn a single and relatively useless gate into a cog in a complex circuit such as an entire neural network.
+Lets get an intuition for how this works by referring again to the example. The add gate received inputs [-2, 5] and computed output 3. Since the gate is computing the addition operation, its local gradient for both of its inputs is +1. The rest of the circuit computed the final value, which is -12. During the backward pass in which the chain rule is applied recursively backwards through the circuit, the add gate (which is an input to the multiply gate) learns that the gradient for its output was -4. If we anthropomorphize the circuit as wanting to output a higher value (which can help with intuition), then we can think of the circuit as “wanting” the output of the add gate to be lower (due to negative sign), and with a force of 4. To continue the recurrence and to chain the gradient, the add gate takes that gradient and multiplies it to all of the local gradients for its inputs (making the gradient on both x and y 1 * -4 = -4). Notice that this has the desired effect: If x,y were to decrease (responding to their negative gradient) then the add gate’s output would decrease, which in turn makes the multiply gate’s output increase.
+Backpropagation can thus be thought of as gates communicating to each other (through the gradient signal) whether they want their outputs to increase or decrease (and how strongly), so as to make the final output value higher.
+
+
+4. The main problem is:
 how to minimize a loss function and find the global minimum? 
 
-The loss function: min square error 
 
-Sum (1/2 * (Y - Output)^2)
+0. Matrix algebra, Jacobian, matrix product, Hadamard product
+01. scalar, vector and matrix derivatives 
+02. chain rule 
 
+
+1. Structure : input  hidden output
+
+2. Forward pass:
+
+hidden layers: 
+    z = W.T * x + b, W - Weight matrix NxM (N neurons, M inputs from previous layer at a neuron), x - input vector of size M, b - bias scalar
+    
+    z - is the size of the layer, so N-neurons, 
+        it is a np.dot multiplication of matrix and vector (NOT an element-wise/Hadamard product!!!)
+        W is transponed for the multiplication (W.T)
+
+    h = actFunc (z)
+
+    h - is an activation functions, a vector of N-neuron size
+
+output layer:
+    z = W.T * x + b
+    h = actFunc (z)
+    L = loss (h)            CE (h) or LE (h)
+
+
+3. Backward pass:
+
+We want to improve each and every weight in the network so we measure the error, and estimate the direction of the change 
+(derivate shows us this -,0,+) and then make small step in this direction 
+   
+   W = W + alpha * deltaW
+   B = B + alpha * deltaB
+
+   Chain rule 
+   deltaW = dL/dW = dL/dh * dh/dz * dz/dW
+   deltaB = dL/db = dL/dh * dh/dz * dz/db
+
+
+Example:
+
+input
+28*28 pixels, 784 inputs
+
+hidden layer 
+128 neurons 
+activation: ReLU - rectifying linear unit 
+
+output layer 
+10 neurons  
+activation: Softmax
+loss function: Cross Entropy
+ 
+Forward:
+
+    z1 = W1.T * x + b1       z1 = [128,]      W1 = [128, 784]    x = [784,]   b1 = 0.05 
+    h1 = ReLU (z1)           h1 = [128,]      Vector !!!  
+
+    z2 = W2.T * h1 + b2      z2 = [10,]  W2 = [10, 128], h1 = [128,], b2 = 0.05
+    h2 = SoftMax (z2)        h2 = [10,]    Vector !!!
+    L = CE (h2)              L = [10,]
+
+
+Backward:
+   deltaW2 = dL/dW2 = dL/dh2 * dh2/dz2 * dz2/dW2
+   deltaB2 = dL/db2 = dL/dh2 * dh2/dz2 * dz/db2
+
+   d1 = dL/dh2 * dh2/dz2  
+   
+   deltaW2 = d1 * dz2/dW2
+   deltab2 = d1 * dz2/db2
+
+
+   deltaW1 = dL/dW1 = dL/dh2 * dh2/dz2 * dz2/dh1 * dh1/dz1 * dz1/dW1
+   deltaB1 = dL/db1 = dL/dh2 * dh2/dz2 * dz2/dh1 * dh1/dz1 * dz1/db1
+
+   deltaW1 = d1 * dz2/dh1 * dh1/dz1 * dz1/dW1
+   deltaB1 = d1 * dz2/dh1 * dh1/dz1 * dz1/db1
+   
+   d2 = d1 * dz2/dh1 * dh1/dz1
+
+   deltaW1 = d2 * dz1/dW1
+   deltab1 = d2 * dz1/db1
+ 
+
+   dL/dh2 = CE'         [10,]
+   dh2/dz2 = SoftMax'   [10, 10]    Jacobian!!!
+   d1 = CE' * SoftMax'  [10,]       Matrix product, np.dot 
+   dz2/dW2 = d1 * h1    [10, 128]   h1 can be a vector [128,] but can be also a diagonal/sparse Jacobian [10, 128*10]
+
+   dz2/dh1 = W2         [128,]      Vector
+   dh1/dz1 = ReLU'      [128,]      Vector
+   d2 = d1 * W2 x RelU'   [10,] * [10, 128] x [128,] = [128,] x [128,] = [128,]  Matrix product np.dot AND  Hadamard product!!! 
+   dz1/dW1 = d2 * x     [128, 784]
+
+
+Why derivatives:
+gradient descent:
+
+https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
+Our goal with backpropagation is to update each of the weights in the network so that they cause the actual output 
+to be closer the target output, thereby minimizing the error for each output neuron and the network as a whole.
+
+
+
+
+
+
+
+
+Adventures 
+
+1. 1 month???  Sigmoid works, linear regression loss works, and I did what Hamid did within 1 month, not a big deal
+   There is however a problem with model serialization, it does not work after loading the model
+   There must be a problem with the model, Fu*k
+2. 1 month later, EUREKA Pyhton has object references, if I serialize the objects the references between objects are gone... 
+   well this one was a though one. 
+3. I still feel a discomfort as it goes for the matrix representation / I feel I have a superficial knowledge 
+
+4. half a year later: everybody (TF, Torch) say softmax / CE gives better results, 
+   lets try softmax / crossentropy!!! 
+
+5. 1 month later, SM/CE sucks, what a mess... nothing works WTF!
+
+6. hard learning matrix multiplications, gradient and derivative stuff
+
+7. still no success
+  I am out of ammo, will it be a next Stalingrad? 
+
+8. 2 months later, lets try a sanity check 
+3. LUCK with elementwise independant and dependant activation functions - Labouring Under Correct Knowledge:
+
+https://aew61.github.io/blog/artificial_neural_networks/1_background/1.b_activation_functions_and_derivatives.html
+
+"So we see that we will have to be using some matrix multiplication here. We can reduce this matrix multiplication 
+down to element-wise multiplication if we know that J is sparse and only contains a gradient along the diagonal. 
+This optimization will save us tons of time, especially as the parameter space and feature space of our models grow."

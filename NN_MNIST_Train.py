@@ -41,9 +41,10 @@ nimages = np.asfarray (images) * fac + 0.01 # normalize grayscales to 0.01 - 1 h
 
 # NUMPY 
 # initialize network layer: No of Neurons, Previous Layer, Bias, Learning Rate, Activation Function
-InputLayer = NeuronLayers2.NeuronFCLayer (image_size*image_size, None, 0, 0.5, af.PassThrough())
-HiddenLayer1 = NeuronLayers2.NeuronFCLayer (128, InputLayer, 0.35, 0.5, af.ReLU()) # af.Sigmoid
-OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, 0.5, af.SoftMax(), lf.CrossEntropy()) # af.SoftMax 
+lr = 0.005
+InputLayer = NeuronLayers2.NeuronFCLayer (image_size*image_size, None, 0, lr, af.PassThrough())
+HiddenLayer1 = NeuronLayers2.NeuronFCLayer (128, InputLayer, 0.35, lr, af.ReLU()) # af.Sigmoid
+OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, lr, af.SoftMax(), lf.CrossEntropy()) # af.SoftMax 
 
 InputLayer.setNextLayer (HiddenLayer1)
 HiddenLayer1.setNextLayer (OutputLayer)
