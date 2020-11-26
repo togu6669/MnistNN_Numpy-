@@ -14,14 +14,14 @@ class ActFunc (metaclass=abc.ABCMeta):
 
     # @abc.abstractmethod
     # def val_torch(self, y):
-    #     pass
+    #     pass       mmmmm mm m m,m üpßvv                        yn<ilwuh<98p8t0ußuz                                                                                                                             oäji9i4    ßu9ßßßüi09iiü´ßß9ßdf    9   00zußp
 
     @abc.abstractmethod
     def d_val (self, y):   
         pass
 
 class ReLU(ActFunc):
-    # def __init__(self):
+    # def __init__(self): , öl,.,.           bn bb , , o8896ühjpö
     #     _
 
     def val (self, y):

@@ -4,7 +4,7 @@ import abc
 
 class LossFunc (metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def val(self, y):
+    def val(self, y, l):
         pass
 
     # @abc.abstractmethod
@@ -12,7 +12,7 @@ class LossFunc (metaclass=abc.ABCMeta):
     #     pass
 
     @abc.abstractmethod
-    def d_val (self, y):   
+    def d_val (self, y, l):   
         pass
 
 class CrossEntropy(LossFunc):
@@ -21,27 +21,34 @@ class CrossEntropy(LossFunc):
         # a = - np.log (Output)
         # a = Label * a
         # a = np.sum (a)
+        # a = np.zeros (l)
+        # i = np.where(l == 0.99)
+        # a [i[0]] = 1
         return - np.sum ((l*np.log (y)), 0)
 
     def d_val (self, y, l):
         z = np.zeros_like(y)
-        a = np. where(l == 0.99) # awful hack, we know that the value under the correct label index = 0.99
+        a = np.where(l == 0.99) # awful hack, we know that the value under the correct label index equals 0.99
         if len(a) > 0 and len(a[0]) > 0:
             z[a[0]] = -1 / y [a[0]]
         return z 
 
+class MeanSquareError(LossFunc):
 
-# def QuadraticSumError (Output, Label):
-#     return np.sum (np.power(Label-Output, 2))
+    def val (self, y, l):
+        n = y.size 
+        return np.sum (np.power(l-y, 2)) / (2 * n)
+        # return np.sum (np.power(l-y, 2)) / 2    # 2 classes 
 
-
-
-
-
+    # the derivative is in fact - np.sum (l-y) / n, where l - label, y- the network output and n is number of neurons in the output layer 
+    # but here we have one hot output, that is the outputs are not correlated and can not be summed and thus derivative is reduced to the vector of single outputs
+    # so np.sum (one element) / 1
+    def d_val (self, y, l):
+        # n = y.size 
+        # return - np.sum (l-y) / n
+        return y-l 
 
 # -------------------------------------------------------- Test routines -----------------------------------------------------------------------------
-
-
 # CE inspection on how it behaves if the right answer probability changes from 0,001% to 99,9%
 # 10 classes, at first all prob = 0.001, then we change class 4 (wrong answer) from 99,9% to 0,001%
 # and class 5 (right answer) from 0,001% to 99,9%

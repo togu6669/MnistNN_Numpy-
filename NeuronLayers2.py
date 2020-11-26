@@ -105,12 +105,11 @@ class NeuronFCLayer:        # fully connected
 
     def backward(self, Y):
 
-        # np.transpose will work only on 2d array/matrix thus np.atleast_2d - not used anymore
         if self.nl is None:
             # torch_w_grad, _ = getTorchGrad()
             self.dl = self.lf.d_val (self.y, Y)
         else: 
-            # sum of (transponed next laser weights * next layer deltas) 
+            # next layer weights * next layer deltas
             self.dl = np.dot (self.nl.d, self.nl.w)
             
         self.dy = self.af.d_val (self.z_b) 
@@ -128,14 +127,14 @@ class NeuronFCLayer:        # fully connected
         # dz = dx / dw as x, however it is important to remember that it is a Jacobian! 
         dz = self.x.reshape (1, self.x.shape [0])
 
-        # dot or Hadamard? Make a choice BASED on data shape, 
+        # dot or Hadamard? Make a choice BASED on the data shape, 
         if (self.dy.ndim > 1): 
             if (self.dy.ndim == 2):
                 self.d = np.dot (self.dl, self.dy)  # vector * jacobian, jacobian dimension reduction!!!
         else:
             self.d = self.dl * self.dy  # Hadamard element-wise vector * vector
 
-        # if we would have a Jacobian
+        # if we would have dw as a Jacobian
         # self.dw = np.dot (self.d, dz).reshape (self.w.shape)
 
         # reshape dz to (1, N) and d to (M, 1) to obtain dw of (M, N) shape

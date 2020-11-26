@@ -41,42 +41,52 @@ nimages = np.asfarray (images) * fac + 0.01 # normalize grayscales to 0.01 - 1 h
 
 # NUMPY 
 # initialize network layer: No of Neurons, Previous Layer, Bias, Learning Rate, Activation Function
-lr = 0.005
-InputLayer = NeuronLayers2.NeuronFCLayer (image_size*image_size, None, 0, lr, af.PassThrough())
-HiddenLayer1 = NeuronLayers2.NeuronFCLayer (128, InputLayer, 0.35, lr, af.ReLU()) # af.Sigmoid
-OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.6, lr, af.SoftMax(), lf.CrossEntropy()) # af.SoftMax 
 
+# Softmax 
+lr = 0.0001
+InputLayer = NeuronLayers2.NeuronFCLayer (image_size*image_size, None, 0, lr, af.PassThrough())
+# HiddenLayer1 = NeuronLayers2.NeuronFCLayer (248, InputLayer, 0.0, lr, af.ReLU()) # 0.35 
+HiddenLayer1 = NeuronLayers2.NeuronFCLayer (60, InputLayer, 0.0, lr, af.ReLU()) # 0.35
+OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.0, lr, af.SoftMax(), lf.CrossEntropy()) # 0.6
 InputLayer.setNextLayer (HiddenLayer1)
-HiddenLayer1.setNextLayer (OutputLayer)
+# HiddenLayer1.setNextLayer (HiddenLayer2) 
+HiddenLayer1.setNextLayer (OutputLayer) 
 OutputLayer.setNextLayer(None)
+
+# Sigmoid 
+# lr = 0.2 
+# HiddenLayer1 = NeuronLayers2.NeuronFCLayer (128, InputLayer, 0.0, lr, af.Sigmoid()) # af.ReLU()) # 0.35 af.Sigmoid())
+# OutputLayer = NeuronLayers2.NeuronFCLayer (10, HiddenLayer1, 0.0, lr, af.Sigmoid(), lf.MeanSquareError()) #  af.SoftMax(), lf.CrossEntropy()) # 0.6  af.SoftMax 
+# InputLayer.setNextLayer (HiddenLayer1)
+# HiddenLayer1.setNextLayer (OutputLayer) 
+# OutputLayer.setNextLayer(None)
 
 start = timer()
 
-No_of_epoch = 10
+No_of_epoch = 8
 epoch = 0
-accuracies = np.zeros(No_of_epoch)
+accuracies = np.zeros (No_of_epoch)
 # forthOfImages = images.shape [0] / 4
 
 # plt.plot(minweight)
-
+colors = ['blue', 'red', 'green', 'yellow', 'blue', 'red', 'green', 'yellow']
+plt.axis([0, images.shape [0], -10, 10])
+plt.title ('Output Error')
 while epoch < No_of_epoch:
     img_count = 0
     success_count = 0
-    # plt.axis([0, images.shape [0], -0.5, 0.5])
-    plt.title ('Outputs H1 - red, O - blue')
-
     while img_count < images.shape [0]:
         # forward step
         # print ('--------------------- One epoche forward-----------------')
         # img = np.asfarray (images [img_count]) * fac + 0.01 # normalize grayscales to 0.01 - 1 https://www.python-course.eu/neural_network_mnist.php
         img = nimages[img_count].reshape (-1) # flaten to one dimension https://stackoverflow.com/questions/49007454/prepare-images-for-a-neural-network-model
-        InputLayer.forward (img) #
+        InputLayer.forward (img) 
         # print ('----------------------- Hidden Layer1 -------------------')
         HiddenLayer1.forward (None)
+        # HiddenLayer2.forward (None)
         # print ('----------------------- Output Layer -------------------')
         OutputLayer.forward (None)
-        OutputLayer.lf.val (OutputLayer.Output(), labels [img_count])
-
+        
         # backprop step 
         # print ('----------------------------------------------------------')
         # print ('--------------------- One epoche backprop-----------------')
@@ -86,30 +96,32 @@ while epoch < No_of_epoch:
         #     label = labels [img_count]
         
         OutputLayer.backward (labels [img_count]) # first layer
+        # HiddenLayer2.backward (None)
         HiddenLayer1.backward (None)
 
         OutputLayer.update()
+        # HiddenLayer2.update()
         HiddenLayer1.update()
 
-        if np.mod (img_count, 1000) == 0:
-            print ("learning image #: ", img_count, " Label:", np.argmax (labels [img_count]), " Output:", np.argmax (OutputLayer.y))
-            # plt.scatter (img_count, np.mean (OutputLayer.y), Color = 'blue')    
-            # plt.scatter (img_count, np.mean (HiddenLayer1.y), Color = 'red')   
-            # plt.pause (0.05)
+        L = np.argmax (labels [img_count])
+        Y = np.argmax (OutputLayer.y)
+    
+        if (L == Y):
+            success_count = success_count + 1
+
+        if (img_count > 0) and (np.mod (img_count, 1000) == 0):
+            print ("learning image #: ", img_count, " Label:", L, " Output:", Y, " Accurracy: ", success_count / img_count)
+            v = OutputLayer.lf.val (OutputLayer.y, labels [img_count])
+            plt.scatter (img_count, v, color = colors[epoch])    
+            plt.pause (0.05)
 
         img_count = img_count + 1
 
-        img_label = np.argmax (labels [img_count-1])
-        net_output = np.argmax (OutputLayer.y)
-
-        if (img_label == net_output):
-            success_count = success_count + 1
-
-    print ("epoch: ", epoch, " Label: ", img_label," Output: ", net_output, " Accurracy: ", success_count / img_count)
+    # print ("epoch: ", epoch, " Label: ", L," Output: ", Y, " Accurracy: ", success_count / img_count)
     accuracies [epoch] = success_count / img_count
 
     epoch = epoch + 1
-   # plt.show ()
+    # plt.show ()
 
 plt.plot(accuracies)
 plt.xlabel('x - epoch')
