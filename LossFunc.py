@@ -40,7 +40,7 @@ class MeanSquareError(LossFunc):
         return np.sum (np.power(l-y, 2)) / (2 * n)
         # return np.sum (np.power(l-y, 2)) / 2    # 2 classes 
 
-    # the derivative is in fact - np.sum (l-y) / n, where l - label, y- the network output and n is number of neurons in the output layer 
+    # the derivative is in fact - np.sum (l-y) / n, where l - label, y- the network output and n is the number of neurons in the output layer 
     # but here we have one hot output, that is the outputs are not correlated and can not be summed and thus derivative is reduced to the vector of single outputs
     # so np.sum (one element) / 1
     def d_val (self, y, l):
