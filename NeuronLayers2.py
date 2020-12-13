@@ -63,35 +63,6 @@ class NeuronFCLayer:        # fully connected
     def setNextLayer (self, nextLayer):
         self.nl = nextLayer
 
-    def outputLossFunc ():
-        if self.lf is not None:
-            a = self.lf (self.Output())
-            print ('Loss Funcion value ', a)  
-
-        # torch autograd for comparison with my math
-        def getTorchGrad ():
-            w = torch.from_numpy (self.w)
-            w = torch.tensor (w, requires_grad = True)
-            b = torch.tensor (self.b, requires_grad = True)
-            b = torch.reshape (b, (1, 1))
-            x = torch.from_numpy (self.x)
-            x = torch.reshape (x, (1, list (x.size())[0] ))
-            z = x @ w.T + b
-            
-            # out = torch.from_numpy (self.layeroutputs)
-            # out = torch.reshape (out, (1, list (out.size())[0] ))
-            label = np.array (np.argmax(Y)).reshape (1)
-            label = torch.tensor (label) 
-            
-            # torch_ce_out = F.cross_entropy(out, label)
-            torch_ce = F.cross_entropy(z, label)
-            
-            torch_ce.backward() # torch autograd
-            # torch_w_grad = w.grad
-            # torch_b_grad = b.grad
-            return w.grad, b.grad
-
-
     # softmax + cross entropy derivative clearly explained
     # https://levelup.gitconnected.com/killer-combo-softmax-and-cross-entropy-5907442f60ba
     # discusion on backprof with softmax + cross entropy (derivatives)
@@ -153,4 +124,32 @@ class NeuronFCLayer:        # fully connected
 
     def update (self):
         self.w = self.w - self.lr * self.dw
+
         
+    def outputLossFunc ():
+        if self.lf is not None:
+            a = self.lf (self.Output())
+            print ('Loss Funcion value ', a)  
+
+        # torch autograd for comparison with my math
+        def getTorchGrad ():
+            w = torch.from_numpy (self.w)
+            w = torch.tensor (w, requires_grad = True)
+            b = torch.tensor (self.b, requires_grad = True)
+            b = torch.reshape (b, (1, 1))
+            x = torch.from_numpy (self.x)
+            x = torch.reshape (x, (1, list (x.size())[0] ))
+            z = x @ w.T + b
+            
+            # out = torch.from_numpy (self.layeroutputs)
+            # out = torch.reshape (out, (1, list (out.size())[0] ))
+            label = np.array (np.argmax(Y)).reshape (1)
+            label = torch.tensor (label) 
+            
+            # torch_ce_out = F.cross_entropy(out, label)
+            torch_ce = F.cross_entropy(z, label)
+            
+            torch_ce.backward() # torch autograd
+            # torch_w_grad = w.grad
+            # torch_b_grad = b.grad
+            return w.grad, b.grad
