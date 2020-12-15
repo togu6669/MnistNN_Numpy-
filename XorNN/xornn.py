@@ -11,14 +11,16 @@ input = np.array ([[0, 0],
 
 label = np.array ([0, 1, 1, 0])
 
-hw = np.random.randn (2, 3)
+hw = np.random.randn (2, 6)
 hb = 0.23
-ow = np.random.randn (3, 1)
+ow = np.random.randn (6, 1)
 ob = 0.34
 
 # train 
-lr = 0.05
-iter = 60000
+lr = 0.1
+iter = 70000
+
+acc = np.zeros (iter)
 for i in range (iter):
     for o in range (label.size):
         # forward
@@ -26,9 +28,10 @@ for i in range (iter):
         
         hz = np.sum (np.dot (hw.T, ii), 1) + hb
         hz = hz.reshape (hz.size, 1)
-        ho = sig (hz) # sigmoid 
-        # ho = hz * (hz > 0) # relu
-        # np.clip (ho, 0.01, 0.99, ho)  # ? 
+        # ho = sig (hz) # sigmoid 
+        ho = hz * (hz > 0) # relu
+        np.clip (ho, 0.01, 0.99, ho) # does not work w/o clipping 
+        
         oz = np.sum (np.dot (ow.T, ho), 1) + ob
         oo = sig (oz).reshape (oz.size, 1) # sigmoid 
 
@@ -39,13 +42,14 @@ for i in range (iter):
         dwo = np.dot (ddo, ho.T) # delta * logits (z) derivative = weight delta
 
         dlh = np.dot (ddo, ow.T) # "loss" of hidden layer: delta of output layer * weights of output layer
-        dah = sig (hz) * (1 - sig (hz)) # activation function derivative
-        # dah = np.where (hz < 0, 0, 1)  
+        # dah = sig (hz) * (1 - sig (hz)) # activation function derivative
+        dah = np.where (hz < 0, 0, 1)  
         dwh = np.dot (dlh.T * dah, ii.T) # delta * logits (z) derivative = weight delta
         
         #update - gradient descent 
         ow = ow - lr * dwo.T
-        hw = hw - lr * dwh.T 
+        hw = hw - lr * dwh.T
+        acc [i] = acc [i] + np.abs (dlo)   
 
 # test
 for o in range (label.size):
@@ -54,12 +58,18 @@ for o in range (label.size):
     
     hz = np.sum (np.dot (hw.T, ii), 1) + hb
     hz = hz.reshape (hz.size, 1)
-    ho = sig (hz) # sigmoid 
+    # ho = sig (hz) # sigmoid 
     
-    # ho = hz * (hz > 0) # relu
-    # np.clip (ho, 0.01, 0.99, ho)  # ? 
+    ho = hz * (hz > 0) # relu
+    np.clip (ho, 0.01, 0.99, ho) 
     
     oz = np.sum (np.dot (ow.T, ho), 1) + ob
     oo = sig (oz) # sigmoid 
     
     print (oo - label [o])
+
+plt.plot(acc)
+plt.xlabel('x - epoch')
+plt.ylabel('y - training error')
+plt.title('Loss')
+plt.show()
