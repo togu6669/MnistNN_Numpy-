@@ -74,4 +74,4 @@ def readMNISTLabels (FileName):
     #     print(labels)
     return labels_one_hot, lables_count
 
-labels = readMNISTLabels ('data/train-labels-idx1-ubyte.gz')
+# labels = readMNISTLabels ('MnistNN/data/train-labels-idx1-ubyte.gz')

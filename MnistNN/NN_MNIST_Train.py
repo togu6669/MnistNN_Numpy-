@@ -24,13 +24,13 @@ import matplotlib.pyplot as plt
 
 # Read training images
 #mr.ReadMNISTImages ('data/t10k-images-idx3-ubyte.gz')
-images, image_size, image_count = mr.ReadMNISTImages ('data/train-images-idx3-ubyte.gz')
-labels, label_count = mr.readMNISTLabels ('data/train-labels-idx1-ubyte.gz')
+images, image_size, image_count = mr.ReadMNISTImages ('MnistNN/data/train-images-idx3-ubyte.gz')
+labels, label_count = mr.readMNISTLabels ('MnistNN/data/train-labels-idx1-ubyte.gz')
 
 assert (image_count == label_count), "Number of training images is different then number of training labels!"
 
-test_images, test_image_size, test_image_count = mr.ReadMNISTImages ('data/t10k-images-idx3-ubyte.gz')
-test_labels, test_label_count = mr.readMNISTLabels ('data/t10k-labels-idx1-ubyte.gz')
+test_images, test_image_size, test_image_count = mr.ReadMNISTImages ('MnistNN/data/t10k-images-idx3-ubyte.gz')
+test_labels, test_label_count = mr.readMNISTLabels ('MnistNN/data/t10k-labels-idx1-ubyte.gz')
 
 assert (image_count == label_count), "Number of training images is different then number of training labels!"
 

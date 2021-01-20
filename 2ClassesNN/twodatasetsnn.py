@@ -68,18 +68,25 @@ def train(data, label, hw, hb, ow, ob):
             oz = np.sum(np.dot(ow.T, ho), 1) + ob
             oo = softmax(oz).reshape(oz.size, 1)
 
-                       
             # max function derivative: maxv for the max class, 0 for the other
             maxv = 0.0
             out = 0
             # we have two classes so our derivative output : the index of the most probable class, so 0 / 1
-            for o in range(oo.size):
-                if (oo[o] > maxv):
-                    out = o
-                    maxv = oo[o]
+            for o1 in range(oo.size):
+                if (oo[o1] > maxv):
+                    out = o1
+                    maxv = oo[o1]
+
+            dlo = np.zeros_like(oo)
+            if (label [o] == 0) and (o == o1): 
+                dlo [0] = maxv
+                dlo [1] = 0 
+            if (label [o] == 1) and (o == o1): 
+                dlo [0] = 0
+                dlo [1] = maxv 
 
             # backward
-            dlo = maxv - label[o]  # loss function derivative, if  maxv about 1  and label [class 1]= 1 then dlo is about 0  
+            # dlo = maxv - label[o]  # loss function derivative, if  maxv about 1  and label [class 1]= 1 then dlo is about 0  
             dao = dsoftmax(oz)
             ddo = dlo * dao  # delta
             # delta * logits (z) derivative = weight delta
