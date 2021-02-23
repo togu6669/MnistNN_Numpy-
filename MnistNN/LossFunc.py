@@ -1,3 +1,7 @@
+# discussions of different loss functions
+# https://www.analyticsvidhya.com/blog/2019/08/detailed-guide-7-loss-functions-machine-learning-python-code/
+# https://ml-cheatsheet.readthedocs.io/en/latest/loss_functions.html
+
 import numpy as np
 import matplotlib.pyplot as plt
 import abc
@@ -18,8 +22,7 @@ class LossFunc (metaclass=abc.ABCMeta):
 class CrossEntropy(LossFunc):
 
     def val (self, y, l):
-        # a = - np.log (Output)
-        # a = Label * a
+        # a = - np.log (Output)        # a = Label * a
         # a = np.sum (a)
         # a = np.zeros (l)
         # i = np.where(l == 0.99)
