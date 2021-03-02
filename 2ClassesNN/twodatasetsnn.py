@@ -69,7 +69,7 @@ def randomdata():
 
 # train
 def train(data, label, hw, hb, ow, ob):
-    lr = 0.1
+    lr = 0.01
     iter = 7000
 
     acc = np.zeros(iter)
@@ -85,37 +85,37 @@ def train(data, label, hw, hb, ow, ob):
 
             oz = np.sum(np.dot(ow.T, ho), 1) + ob
             
-            oo = softmax(oz) 
+            oo = softmax(oz) # oo = [2, 0]
             ol = binCE (oo, label[:,o]) 
 
             # backward
             # derivative of the loss fuction 
-            dlo = dbinCE (oo, label[:,o]) # vector [2, ] if we have the label [1, 0] do we need the derivative of the 0 label? 
-            dao = dsoftmax (oz) # derivative of the activation function (softmax), jacobian 
-            ddo = np.dot (dlo.T, dao).reshape (dlo.size, 1) # output layer delta (used in the hidden layer), dot product
+            dlo = dbinCE (oo, label[:,o]) # dlo = [2, ] if we have the label [1, 0] do we need the derivative of the 0 label? 
+            dao = dsoftmax (oz) # derivative of the activation function (softmax), jacobian, oz = [2,] dao = [2, 2]
+            ddo = np.dot (dlo.T, dao).reshape (dlo.size, 1) # output layer delta (used in the hidden layer), dot product ddo = [2, 1]
             # delta * logits (z) derivative (ho) = weight delta for the output layer (dwo)
-            dwo = np.dot(ddo, ho.T)
+            dwo = np.dot(ddo, ho.T) # ho = [12, 1] dwo = [2, 12]
 
             # "loss" of hidden layer: delta of output layer * weights of output layer
-            dlh = np.dot(ddo.T, ow.T)
-            dhz = dtsnh(hz) # derivative of the activation function (hiperbolic tangens), vector
-            ddh = dlh.T * dhz # hidden layer delta, Hadamard
+            dlh = np.dot(ddo.T, ow.T) # ow = [12, 2] dlh = [1, 12]
+            dhz = dtsnh(hz) # derivative of the activation function (hiperbolic tangens), vector dhz = [12, 1]
+            ddh = dlh.T * dhz # hidden layer delta, Hadamard, ddh = [12, 1]
             # delta * logits (z) derivative (ii) = weight delta for the hidden layer (dwh)
-            dwh = np.dot(ddh, ii.T)
+            dwh = np.dot(ddh, ii.T) # dwh = [12, 2]
 
-
-            # update - gradient descent
+            # update - stochastic gradient descent
             ow = ow - lr * dwo.T
             hw = hw - lr * dwh.T
             
             # accuracy: abs (oo[0] - label[o][0]) 
-            # acc = np.round(np.abs (oo[0] - label[o][0]))
-            # acc[i] = acc[i] + acc
-
+            err = np.round(np.abs (oo[0] - label[0, o]))
+            if (err == 0.0): 
+                acc[i] = acc[i] + 1
+    return acc
 
 # draws learning squiggle
 def test(data, label, hw, hb, ow, ob):
-    for o in range(label.size):
+    for o in range(label.shape[1]-1):
         # forward
         ii = data[o].reshape(data[o].size, 1)
 
@@ -124,7 +124,7 @@ def test(data, label, hw, hb, ow, ob):
         ho = tsnh(hz)  # hiperbolic tangens
 
         oz = np.sum(np.dot(ow.T, ho), 1) + ob
-        oo = softmax(oz).reshape(oo.size, 1)
+        oo = softmax(oz)
 
         # maxv = 0.0
         # out = 0
@@ -149,7 +149,7 @@ dat, lab = randomdata()
 # plt.scatter(dat[10:, 0], dat[10:, 1], c='green')
 # plt.show()
 
-train(dat, lab, hw1, hb1, ow1, ob1)
+acc1 = train(dat, lab, hw1, hb1, ow1, ob1)
 test(dat, lab, hw1, hb1, ow1, ob1)
 
 
