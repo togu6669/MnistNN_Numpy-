@@ -67,10 +67,21 @@ def randomdata():
         label[1, i+10] = 1
     return data, label
 
+
+# main 
+hw1 = np.random.randn(2, 22)  # input 2 nuerons fc hidden 12 neurons
+hb1 = 0.23
+ow1 = np.random.randn(22, 2)  # softmax
+ob1 = 0.34
+
+dat, lab = randomdata()
+
+iter = 5000
+lr = 0.01
+
+
 # train
 def train(data, label, hw, hb, ow, ob):
-    lr = 0.01
-    iter = 7000
 
     acc = np.zeros(iter)
     for i in range(iter):
@@ -138,19 +149,15 @@ def test(data, label, hw, hb, ow, ob):
 
 
 # main
-hw1 = np.random.randn(2, 12)  # input 2 nuerons fc hidden 12 neurons
-hb1 = 0.23
-ow1 = np.random.randn(12, 2)  # softmax
-ob1 = 0.34
-
-dat, lab = randomdata()
-
 # plt.scatter(dat[:10, 0], dat[:10, 1], c='red')
 # plt.scatter(dat[10:, 0], dat[10:, 1], c='green')
 # plt.show()
 
 acc1 = train(dat, lab, hw1, hb1, ow1, ob1)
-test(dat, lab, hw1, hb1, ow1, ob1)
+# test(dat, lab, hw1, hb1, ow1, ob1)
+
+plt.plot(20 - acc1, c='blue')
+plt.show()
 
 
 # test_x = np.array([[0], [2]])
